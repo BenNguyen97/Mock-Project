@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  mongodb-primary:
+    image: mongo:latest
+    container_name: mongodb-primary
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo-primary-data:/data/db
+    networks:
+      - app-network
+
+  database-service:
+    build: ./database-service
+    container_name: database-service
+    depends_on:
+      - mongodb-primary
+      - mongodb-secondary
+    environment:
+      - MONGO_URI=mongodb://root:example@mongodb-primary:27017,mongodb-secondary:27018/
+    ports:
+      - "27019:27017"
+    networks:
+      - app-network
+
+  backend-service:
+    build: ./backend-service
+    container_name: backend-service
+    depends_on:
+      - database-service
+    environment:
+      - MONGO_URI=mongodb://root:example@database-service:27017/
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    depends_on:
+      - backend-service
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  ui-service:
+    build: ./ui-service
+    container_name: ui-service
+    depends_on:
+      - api-gateway
+    ports:
+      - "8081:8080"
+    networks:
+      - app-network
+
+volumes:
+  mongo-primary-data:
+  mongo-secondary-data:
+
+networks:
+  app-network:
