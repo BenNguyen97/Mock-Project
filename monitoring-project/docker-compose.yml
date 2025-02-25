@@ -1,16 +1,14 @@
-version: '3.8'
-
 services:
-  mongodb-primary:
+  mongodb:
     image: mongo:latest
-    container_name: mongodb-primary
+    container_name: mongodb
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_ROOT_USERNAME: adminlocal
+      MONGO_INITDB_ROOT_PASSWORD: gpocus8gwu7b9w2pl93lit2x77vo08
     volumes:
-      - mongo-primary-data:/data/db
+      - ./mongo-data:/data/db
     networks:
       - app-network
 
@@ -18,12 +16,9 @@ services:
     build: ./database-service
     container_name: database-service
     depends_on:
-      - mongodb-primary
-      - mongodb-secondary
-    environment:
-      - MONGO_URI=mongodb://root:example@mongodb-primary:27017,mongodb-secondary:27018/
+      - mongodb
     ports:
-      - "27019:27017"
+      - "8081:8081"
     networks:
       - app-network
 
@@ -33,9 +28,9 @@ services:
     depends_on:
       - database-service
     environment:
-      - MONGO_URI=mongodb://root:example@database-service:27017/
+      - DATABASE_SERVICE_URL=http:/database-service:8081
     ports:
-      - "5000:5000"
+      - "8082:8082"
     networks:
       - app-network
 
@@ -50,18 +45,19 @@ services:
       - app-network
 
   ui-service:
+
     build: ./ui-service
     container_name: ui-service
     depends_on:
       - api-gateway
     ports:
-      - "8081:8080"
+      - "3000:80"
     networks:
       - app-network
 
 volumes:
-  mongo-primary-data:
-  mongo-secondary-data:
+  mongo-data:
 
 networks:
   app-network:
+    driver: bridge
