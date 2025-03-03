@@ -17,7 +17,8 @@ jobs:
             node-version: '18.x'
         - name: Build ReactJS App
           uses: ./.github/actions/build-reactjs
-            
+
+          
         # - name: Build Docker Image
         #   uses: ./.github/actions/build-docker-image
         #   with:
