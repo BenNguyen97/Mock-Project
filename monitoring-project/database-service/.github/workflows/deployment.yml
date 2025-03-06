@@ -1,4 +1,4 @@
-name: Deploy UI-Service
+name: Deploy Database-Service
 
 on: # trigger conditions
   workflow_dispatch:
@@ -22,7 +22,7 @@ on: # trigger conditions
       - master  # Trigger this workflow on push to the main branch
 
 jobs:
-  deploy-ui-service:
+  deploy-database-service:
     runs-on: mock-project #ubuntu-latest #GitHub hosted - Sharing between
 
     steps:
@@ -32,7 +32,7 @@ jobs:
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v1
           with:
-              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
               aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
               aws-region: ap-southeast-1
        
@@ -43,11 +43,11 @@ jobs:
         - name: Build Docker Image
           uses: ./.github/actions/build-docker-image
           with:
-            image_name: 774305578623.dkr.ecr.ap-southeast-1.amazonaws.com/database-service
+            image_name: 774305578623.dkr.ecr.ap-southeast-1.amazonaws.com/database-service-luan
             tag: dev
 
         - name: Push Docker Image
           uses: ./.github/actions/push-docker-image
           with:
-            image_name: 774305578623.dkr.ecr.ap-southeast-1.amazonaws.com/database-service
+            image_name: 774305578623.dkr.ecr.ap-southeast-1.amazonaws.com/database-service-luan
             tag: dev
