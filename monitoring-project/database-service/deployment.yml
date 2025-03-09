@@ -16,11 +16,13 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mongodb-config
+  name: database-service-config
 data:
-  spring.data.mongodb.uri: "mongodb://adminlocal:gpocus8gwu7b9w2pl93lit2x77vo08@mongodb:27017/admin?authSource=admin&retryWrites=true&loadBalanced=false&connectTimeoutMS=10000&authMechanism=SCRAM-SHA-1"
-  server.port: "8081"
-  logging.level.org.springframework.data.mongodb: "DEBUG"
+  application.properties:
+    spring.data.mongodb.uri=mongodb://adminlocal:gpocus8gwu7b9w2pl93lit2x77vo08@mongodb:27017/admin?authSource=admin&retryWrites=true&loadBalanced=false&connectTimeoutMS=10000&authMechanism=SCRAM-SHA-1
+    server.port: "8081"
+    logging.level.org.springframework.data.mongodb: "DEBUG"
+    spring.application.name=database-service
 ---
 
 apiVersion: apps/v1
@@ -49,22 +51,17 @@ spec:
           ports:
             - containerPort: 8081
               name: db-service
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
           env:
-            - name: SPRING_DATA_MONGODB_URI
-              valueFrom:
-                configMapKeyRef:
-                  name: mongodb-config
-                  key: spring.data.mongodb.uri
-            - name: SERVER_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: mongodb-config
-                  key: server.port
-            - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_DATA_MONGODB
-              valueFrom:
-                configMapKeyRef:
-                  name: mongodb-config
-                  key: logging.level.org.springframework.data.mongodb
+            - name: SPRING_CONFIG_LOCATION  
+              value: file:/app/config/
+      volumes:
+        - name: config
+          configMap:
+            name: database-service-config
+             
 
 
  
